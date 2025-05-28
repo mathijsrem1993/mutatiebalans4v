@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Code Invoeren</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f0f4f8;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .code-input {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .code-char {
+      width: 2.5rem;
+      padding: 0.5rem;
+      font-size: 1.5rem;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+    }
+    .correct-char {
+      border-color: green;
+    }
+    .incorrect-char {
+      border-color: red;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .feedback {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    .correct {
+      color: green;
+    }
+    .incorrect {
+      color: red;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+  <div class="container">
+    <h2>Voer beide codes in</h2>
+
+    <label>Cijfercode:</label>
+    <div class="code-input" id="code2"></div>
+
+    <label>Lettercode:</label>
+    <div class="code-input" id="code1"></div>
+
+    <button onclick="checkCodes()">Controleer</button>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    const correctCode1 = "MUTATIESS";
+    const correctCode2 = "194318230";
+
+    function createInputBoxes(containerId, length) {
+      const container = document.getElementById(containerId);
+      for (let i = 0; i < length; i++) {
+        const input = document.createElement("input");
+        input.type = "password";
+        input.maxLength = 1;
+        input.classList.add("code-char");
+        input.dataset.index = i;
+        input.addEventListener("input", function(e) {
+          if (input.value.length === 1) {
+            const next = input.nextElementSibling;
+            if (next) {
+              next.focus();
+            }
+          }
+        });
+        container.appendChild(input);
+      }
+    }
+
+    function getCodeFromInputs(containerId, toUpperCase = false) {
+      const inputs = document.getElementById(containerId).querySelectorAll("input");
+      let value = "";
+      inputs.forEach(input => value += input.value);
+      return toUpperCase ? value.toUpperCase() : value;
+    }
+
+    function checkCodes() {
+      const input1 = getCodeFromInputs("code1", true);
+      const input2 = getCodeFromInputs("code2", false);
+      const feedback = document.getElementById("feedback");
+
+      let correct1 = input1 === correctCode1;
+      let correct2 = input2 === correctCode2;
+
+      const code1Inputs = document.getElementById("code1").querySelectorAll("input");
+      const code2Inputs = document.getElementById("code2").querySelectorAll("input");
+
+      // reset borders
+      code1Inputs.forEach((input, i) => {
+        input.classList.remove("correct-char", "incorrect-char");
+        if (input.value.toUpperCase() === correctCode1[i]) {
+          input.classList.add("correct-char");
+        } else {
+          input.classList.add("incorrect-char");
+        }
+      });
+
+      code2Inputs.forEach((input, i) => {
+        input.classList.remove("correct-char", "incorrect-char");
+        if (input.value === correctCode2[i]) {
+          input.classList.add("correct-char");
+        } else {
+          input.classList.add("incorrect-char");
+        }
+      });
+
+      if (correct1 && correct2) {
+        feedback.textContent = "✅ Beide codes zijn correct! Goed gedaan.";
+        feedback.className = "feedback correct";
+        confetti();
+      } else {
+        feedback.textContent = "❌ Eén of beide codes zijn incorrect.";
+        feedback.className = "feedback incorrect";
+      }
+    }
+
+    // Init inputs
+    createInputBoxes("code1", correctCode1.length);
+    createInputBoxes("code2", correctCode2.length);
+  </script>
+</body>
+</html>
